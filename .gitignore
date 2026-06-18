@@ -1,0 +1,3 @@
+dist/
+.upload-tmp/
+node_modules/
