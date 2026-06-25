@@ -51,6 +51,7 @@ import FileEditor from '@/components/FileEditor'
 import ResizableDivider from '@/components/ResizableDivider'
 import DiskInfoWidget from '@/components/DiskInfoWidget'
 import DragUploadWidget from '@/components/DragUploadWidget'
+import { useMediaQuery } from '@/hooks/use-media-query'
 import { useI18n } from '@/i18n'
 import { showToast } from '@/lib/toast'
 
@@ -118,6 +119,7 @@ export default function App() {
   const [sidebarWidth, setSidebarWidth] = useState(208)
   const [editorWidth, setEditorWidth] = useState(50)
   const [isDark, setIsDark] = useState(true)
+  const isMobile = useMediaQuery('(hover: none) and (pointer: coarse)')
 
   useEffect(() => {
     async function init() {
@@ -778,7 +780,7 @@ export default function App() {
         )}
 
         <div className="flex-1 min-w-0 flex">
-          <div className="flex-1 min-w-0" onContextMenu={handleBackgroundContextMenu}>
+          <div className="flex-1 min-w-0" onContextMenu={!isMobile ? handleBackgroundContextMenu : undefined}>
             {loading ? (
               <div className="flex items-center justify-center h-full">
                 <Spinner className="size-5 text-muted-foreground" />
@@ -797,15 +799,15 @@ export default function App() {
             ) : (
               <ScrollArea className="h-full select-none">
                 <Table
-                  onDragOver={(e) => {
+                  onDragOver={!isMobile ? (e) => {
                     e.preventDefault()
                     e.dataTransfer.dropEffect = 'move'
-                  }}
-                  onDrop={(e) => {
+                  } : undefined}
+                  onDrop={!isMobile ? (e) => {
                     setDragOverFolder(null)
                     if (!e.dataTransfer.types.includes('application/json')) return
                     handleDrop(e, { name: '' })
-                  }}
+                  } : undefined}
                 >
                   <TableHeader>
                     <TableRow>
@@ -848,24 +850,24 @@ export default function App() {
                             ? 'bg-primary/20 ring-2 ring-primary'
                             : ''
                         }`}
-                        draggable
-                        onDragStart={(e) => handleDragStart(e, entry)}
-                        onDragOver={(e) => handleDragOver(e, entry)}
-                        onDragLeave={handleDragLeave}
-                        onDrop={(e) => {
+                        draggable={!isMobile}
+                        onDragStart={!isMobile ? (e) => handleDragStart(e, entry) : undefined}
+                        onDragOver={!isMobile ? (e) => handleDragOver(e, entry) : undefined}
+                        onDragLeave={!isMobile ? handleDragLeave : undefined}
+                        onDrop={!isMobile ? (e) => {
                           e.stopPropagation()
                           if (entry.isDirectory) {
                             handleDrop(e, entry)
                           }
-                        }}
+                        } : undefined}
                         onClick={(e) => handleFileClick(e, entry)}
                         onDoubleClick={() => handleFileDoubleClick(entry)}
-                        onContextMenu={(e) => {
+                        onContextMenu={!isMobile ? (e) => {
                           if (!selectedFiles.has(entry.name)) {
                             handleFileClick(e, entry)
                           }
                           handleContextMenu(e, entry)
-                        }}
+                        } : undefined}
                       >
                         <TableCell>
                           <span className="flex items-center gap-2">
